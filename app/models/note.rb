@@ -11,8 +11,8 @@
 #  updated_at :datetime         not null
 #
 class Note < ApplicationRecord
-  has_one :utility, through: :user
   belongs_to :user
+  has_one :utility, through: :user
   validates :title, presence: true
   validates :content, presence: true
   validates :note_type, presence: true
