@@ -15,22 +15,27 @@ class Note < ApplicationRecord
   has_one :utility, through: :user
   enum note_type: { review: 0, critique: 1 }
   validates :user_id, :title, :content, :note_type, presence: true
-  validate :content_length
+  validate :validate_max_words
 
   private
+
+  def max_word_counts
+    { 'review' => 100 }
+  end
 
   def word_count
     content.split(' ').size
   end
 
-  def validate_max_words(max_word_counts)
+  def validate_max_words
+    return if content.nil?
+
     return unless note_type == 'review' && word_count > max_word_counts['review']
     errors.add(:content, I18n.t('content_length_error'))
   end
 
-  def utility_validation(max_word_counts, thresholds)
+  def classify_content(thresholds)
     word_count = self.word_count
-    validate_max_words(max_word_counts)
 
     case word_count
     when 0..thresholds['short']
@@ -42,15 +47,15 @@ class Note < ApplicationRecord
     end
   end
 
-  def validate_north_utility
-    utility_validation(
+  def classify_north_utility_note_content
+    classify_content(
       { 'review' => 50 },
       { 'short' => 50, 'medium' => 100 }
     )
   end
 
-  def validate_south_utility
-    utility_validation(
+  def classify_south_utility_note_content
+    classify_content(
       { 'review' => 60 },
       { 'short' => 60, 'medium' => 120 }
     )
