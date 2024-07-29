@@ -31,8 +31,4 @@
 
 en:
   hello: "Hello world"
-  activerecord:
-    models:
-      note: "Note"
-        validations:
-          content_length: "Invalid content length"
+  content_length_error: "Invalid content length"

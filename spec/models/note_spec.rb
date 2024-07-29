@@ -7,6 +7,7 @@ RSpec.describe Note, type: :model do
 
   it { is_expected.to belong_to(:user) }
   it { is_expected.to have_one(:utility).through(:user) }
+  it { is_expected.to define_enum_for(:note_type).with_values(%i[review critique]) }
 
   %i[user_id title content note_type].each do |value|
     it { is_expected.to validate_presence_of(value) }

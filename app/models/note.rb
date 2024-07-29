@@ -15,7 +15,7 @@ class Note < ApplicationRecord
   has_one :utility, through: :user
   enum note_type: { review: 0, critique: 1 }
   validate :content_length
-  validates :user_id, :title, :content, presence: true
+  validates :user_id, :title, :content, :note_type, presence: true
 
   private
 
@@ -25,7 +25,7 @@ class Note < ApplicationRecord
 
   def validate_max_words(max_word_counts)
     return unless note_type == 'review' && word_count > max_word_counts['review']
-    errors.add(:content, I18n.t('activerecord.models.note.validations.content_length'))
+    errors.add(:content, I18n.t('content_length_error'))
   end
 
   def utility_validation(max_word_counts, thresholds)

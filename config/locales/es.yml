@@ -31,8 +31,4 @@
 
 es:
   hello: "Hola Mundo!"
-  activerecord:
-    models:
-      note: "Nota"
-        validations:
-          content_length: "Longitud de contenido inválida"
+  content_length_error: "Longitud de contenido inválida"
