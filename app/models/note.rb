@@ -66,9 +66,9 @@ class Note < ApplicationRecord
 
     case utility.code
     when 1
-      validate_north_utility
+      classify_north_utility_note_content
     when 2
-      validate_south_utility
+      classify_south_utility_note_content
     end
   end
 end
