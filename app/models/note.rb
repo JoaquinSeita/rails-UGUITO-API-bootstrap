@@ -14,8 +14,8 @@ class Note < ApplicationRecord
   belongs_to :user
   has_one :utility, through: :user
   enum note_type: { review: 0, critique: 1 }
-  validate :content_length
   validates :user_id, :title, :content, :note_type, presence: true
+  validate :content_length
 
   private
 
@@ -57,6 +57,8 @@ class Note < ApplicationRecord
   end
 
   def content_length
+    return if user_id.blank?
+
     case utility.code
     when 1
       validate_north_utility
