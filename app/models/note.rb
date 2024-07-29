@@ -15,22 +15,30 @@ class Note < ApplicationRecord
   has_one :utility, through: :user
   enum note_type: { review: 0, critique: 1 }
   validates :user_id, :title, :content, :note_type, presence: true
-  validate :validate_max_words
+  validate :validate_content_word_count
 
   private
 
-  def max_word_counts
-    { 'review' => 100 }
+  def max_content_word_count
+    case utility
+    when NorthUtility
+      { 'review' => 50 }
+    when SouthUtility
+      { 'review' => 60 }
+    end
   end
 
   def word_count
     content.split(' ').size
   end
 
-  def validate_max_words
-    return if content.nil?
+  def validate_content_word_count
+    return if user_id.blank? || content.blank?
 
-    return unless note_type == 'review' && word_count > max_word_counts['review']
+    max_words = max_content_word_count['review']
+
+    return unless note_type == 'review' && word_count > max_words
+
     errors.add(:content, I18n.t('content_length_error'))
   end
 
@@ -49,14 +57,12 @@ class Note < ApplicationRecord
 
   def classify_north_utility_note_content
     classify_content(
-      { 'review' => 50 },
       { 'short' => 50, 'medium' => 100 }
     )
   end
 
   def classify_south_utility_note_content
     classify_content(
-      { 'review' => 60 },
       { 'short' => 60, 'medium' => 120 }
     )
   end
@@ -64,10 +70,10 @@ class Note < ApplicationRecord
   def content_length
     return if user_id.blank?
 
-    case utility.code
-    when 1
+    case utility
+    when NorthUtility
       classify_north_utility_note_content
-    when 2
+    when SouthUtility
       classify_south_utility_note_content
     end
   end
