@@ -21,14 +21,13 @@ class Note < ApplicationRecord
     content.split.size
   end
 
-  def validate_content_word_count
-    return if utility.nil? || content.blank?
-
-    return unless note_type == 'review' && word_count > utility.max_content_word_count[note_type]
-
-    errors.add(:content, I18n.t('content_length_error'))
+  def content_length
+    return if utility.nil?
+    classify_content(utility.content_thresholds)
   end
-
+  
+  private
+  
   def classify_content(thresholds)
     case word_count
     when 0..thresholds['short']
@@ -40,8 +39,12 @@ class Note < ApplicationRecord
     end
   end
 
-  def content_length
-    return if utility.nil?
-    classify_content(utility.content_thresholds)
+  def validate_content_word_count
+    return if utility.nil? || content.blank?
+
+    return unless note_type == 'review' && word_count > utility.max_content_word_count[note_type]
+
+    errors.add(:content, I18n.t('content_length_error'))
   end
+
 end
