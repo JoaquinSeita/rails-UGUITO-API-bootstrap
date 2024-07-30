@@ -13,6 +13,8 @@ RSpec.describe User, type: :model do
 
   it { is_expected.to belong_to(:utility) }
 
+  it { is_expected.to have_many(:notes).dependent(:destroy) }
+
   it 'has a valid factory' do
     expect(subject).to be_valid
   end

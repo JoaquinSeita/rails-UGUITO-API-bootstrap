@@ -17,34 +17,19 @@ class Note < ApplicationRecord
   validates :user_id, :title, :content, :note_type, presence: true
   validate :validate_content_word_count
 
-  private
-
-  def max_content_word_count
-    case utility
-    when NorthUtility
-      { 'review' => 50 }
-    when SouthUtility
-      { 'review' => 60 }
-    end
-  end
-
   def word_count
-    content.split(' ').size
+    content.split.size
   end
 
   def validate_content_word_count
-    return if user_id.blank? || content.blank?
+    return if utility.nil? || content.blank?
 
-    max_words = max_content_word_count['review']
-
-    return unless note_type == 'review' && word_count > max_words
+    return unless note_type == 'review' && word_count > utility.max_content_word_count[note_type]
 
     errors.add(:content, I18n.t('content_length_error'))
   end
 
   def classify_content(thresholds)
-    word_count = self.word_count
-
     case word_count
     when 0..thresholds['short']
       :short
@@ -55,26 +40,8 @@ class Note < ApplicationRecord
     end
   end
 
-  def classify_north_utility_note_content
-    classify_content(
-      { 'short' => 50, 'medium' => 100 }
-    )
-  end
-
-  def classify_south_utility_note_content
-    classify_content(
-      { 'short' => 60, 'medium' => 120 }
-    )
-  end
-
   def content_length
-    return if user_id.blank?
-
-    case utility
-    when NorthUtility
-      classify_north_utility_note_content
-    when SouthUtility
-      classify_south_utility_note_content
-    end
+    return if utility.nil?
+    classify_content(utility.content_thresholds)
   end
 end
