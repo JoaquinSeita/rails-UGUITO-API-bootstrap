@@ -31,8 +31,7 @@ class Note < ApplicationRecord
   def classify_content
     return :short if word_count <= utility.short_threshold
     return :medium if word_count <= utility.medium_threshold
-    return :long if utility.long_threshold.nil? || word_count <= utility.long_threshold
-    raise StandardError, 'Invalid content length'
+    :long
   end
 
   def validate_content_word_count

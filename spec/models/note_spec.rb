@@ -13,6 +13,8 @@ RSpec.describe Note, type: :model do
     it { is_expected.to validate_presence_of(value) }
   end
 
+  it { is_expected.to be_valid }
+
   describe '#validate_content_word_count' do
     it 'validates word count' do
       expect(subject.word_count).to be_kind_of(Integer)
@@ -42,28 +44,37 @@ RSpec.describe Note, type: :model do
         expect(note.errors[:content]).not_to include(I18n.t('content_length_error'))
       end
     end
-
-    context 'when content length is longer than long_threshold' do
-      # before do
-      #   allow(utility).to receive(:short_threshold)
-      #     .and_return(5)
-      #   allow(utility).to receive(:medium_threshold)
-      #     .and_return(10)
-      #   allow(utility).to receive(:long_threshold)
-      #     .and_return(15)
-      # end
-
-      # let(:utility) { create(:utility) }
-      let(:user) { create(:user) }
-      let(:note) { build(:note, user: user, content: Faker::Lorem.words(number: 160)) }
-
-      it 'raises an error' do
-        expect { note.valid? }.to raise_error(I18n.t('content_length_error'))
-      end
-    end
   end
 
-  it 'has a valid factory' do
-    expect(subject).to be_valid
+  describe '#classify_content' do
+    let(:utility) { create(:utility) }
+    let(:user) { create(:user, utility: utility) }
+
+    context 'when content is shorter than short threshold' do
+      let(:words_to_generate) { Faker::Number.between(from: 0, to: utility.short_threshold).to_i }
+      let(:note) { build(:note, user: user, content: Faker::Lorem.words(number: words_to_generate).join(' ')) }
+
+      it 'returns short' do
+        expect(note.content_length).to eq('short')
+      end
+    end
+
+    context 'when content is in between short and medium threshold' do
+      let(:words_to_generate) { Faker::Number.between(from: utility.short_threshold + 1, to: utility.medium_threshold).to_i }
+      let(:note) { build(:note, user: user, content: Faker::Lorem.words(number: words_to_generate).join(' ')) }
+
+      it 'returns medium' do
+        expect(note.content_length).to eq('medium')
+      end
+    end
+
+    context 'when content is longer than medium threshold' do
+      let(:words_to_generate) { Faker::Number.between(from: utility.medium_threshold + 1).to_i }
+      let(:note) { build(:note, user: user, content: Faker::Lorem.words(number: words_to_generate).join(' ')) }
+
+      it 'returns long' do
+        expect(note.content_length).to eq('long')
+      end
+    end
   end
 end
