@@ -73,18 +73,6 @@ class Utility < ApplicationRecord
     self.class.name.underscore.split('_').first
   end
 
-  def short_threshold
-    5
-  end
-
-  def medium_threshold
-    10
-  end
-
-  def long_threshold
-    15
-  end
-
   private
 
   def utility_type

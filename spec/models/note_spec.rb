@@ -59,7 +59,7 @@ RSpec.describe Note, type: :model do
       end
     end
 
-    context 'when content is in between short and medium threshold' do
+    context 'when content is in between short and medium thresholds' do
       let(:words_to_generate) { Faker::Number.between(from: utility.short_threshold + 1, to: utility.medium_threshold).to_i }
       let(:note) { build(:note, user: user, content: Faker::Lorem.words(number: words_to_generate).join(' ')) }
 
