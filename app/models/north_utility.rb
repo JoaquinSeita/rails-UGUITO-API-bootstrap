@@ -1,14 +1,13 @@
 class NorthUtility < Utility
-  def note_is_short?(note)
-    note.word_count <= 50
+  def short_threshold
+    50
   end
 
-  def note_is_medium?(note)
-    words = note.word_count
-    words > 50 && words <= 100
+  def medium_threshold
+    100
   end
 
-  def note_is_long?(note)
-    note.word_count > 100
+  def long_threshold
+    nil
   end
 end
