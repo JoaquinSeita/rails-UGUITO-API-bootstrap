@@ -1,9 +1,14 @@
 class NorthUtility < Utility
-  def max_content_word_count
-    { 'review' => 50 }
+  def note_is_short?(note)
+    note.word_count <= 50
   end
 
-  def content_thresholds
-    { 'short' => 50, 'medium' => 100 }
+  def note_is_medium?(note)
+    words = note.word_count
+    words > 50 && words <= 100
+  end
+
+  def note_is_long?(note)
+    note.word_count > 100
   end
 end

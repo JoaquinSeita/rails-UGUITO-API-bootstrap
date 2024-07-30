@@ -23,26 +23,22 @@ class Note < ApplicationRecord
 
   def content_length
     return if utility.nil?
-    classify_content(utility.content_thresholds)
+    classify_content
   end
 
   private
 
-  def classify_content(thresholds)
-    case word_count
-    when 0..thresholds['short']
-      :short
-    when (thresholds['short'] + 1)..thresholds['medium']
-      :medium
-    else
-      :long
-    end
+  def classify_content
+    return :short if utility.note_is_short?(self)
+    return :medium if utility.note_is_medium?(self)
+    return :long if utility.note_is_long?(self)
+    raise 'Invalid content length'
   end
 
   def validate_content_word_count
     return if utility.nil? || content.blank?
 
-    return unless note_type == 'review' && word_count > utility.max_content_word_count[note_type]
+    return unless note_type == 'review' && content_length != :short
 
     errors.add(:content, I18n.t('content_length_error'))
   end
