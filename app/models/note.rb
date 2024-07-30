@@ -25,9 +25,9 @@ class Note < ApplicationRecord
     return if utility.nil?
     classify_content(utility.content_thresholds)
   end
-  
+
   private
-  
+
   def classify_content(thresholds)
     case word_count
     when 0..thresholds['short']
@@ -46,5 +46,4 @@ class Note < ApplicationRecord
 
     errors.add(:content, I18n.t('content_length_error'))
   end
-
 end
