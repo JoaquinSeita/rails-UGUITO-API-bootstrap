@@ -124,4 +124,42 @@ describe Api::V1::NotesController, type: :controller do
       end
     end
   end
+
+  describe 'POST #create' do
+    context 'when there is a user logged in' do
+      include_context 'with authenticated user'
+
+      context 'when creating a note' do
+        let(:note_params) { attributes_for(:note) }
+
+        before { post :create, params: { note: note_params } }
+
+        it 'responds with the created note' do
+          expect(response_body['content']).to eq(note_params[:content])
+        end
+
+        it 'responds with 201 status' do
+          expect(response).to have_http_status(:created)
+        end
+      end
+
+      context 'when creating an invalid note' do
+        let(:note_params) { { title: nil } }
+
+        before { post :create, params: { note: note_params } }
+
+        it 'responds with 400 status' do
+          expect(response).to have_http_status(:bad_request)
+        end
+      end
+    end
+
+    context 'when there is not a user logged in' do
+      context 'when creating a note' do
+        before { post :create, params: { note: attributes_for(:note) } }
+
+        it_behaves_like 'unauthorized'
+      end
+    end
+  end
 end

@@ -3,12 +3,24 @@ module Api
     class NotesController < ApplicationController
       before_action :authenticate_user!
 
+      def create
+        note = current_user.notes.create(params.require(:note)
+                                                .permit(:title,
+                                                        :content,
+                                                        :note_type))
+        render_resource(note)
+      end
+
       def index
-        render json: notes_filtered, status: :ok, each_serializer: IndexNoteSerializer
+        render json: notes_filtered,
+               status: :ok,
+               each_serializer: IndexNoteSerializer
       end
 
       def show
-        render json: show_note, status: :ok, serializer: NoteSerializer
+        render json: show_note,
+               status: :ok,
+               serializer: NoteSerializer
       end
 
       private
