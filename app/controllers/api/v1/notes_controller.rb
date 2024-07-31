@@ -6,9 +6,10 @@ module Api
       end
 
       def notes_filtered
-        notes.where(filtering_params)
-             .page(params[:page]).per(params[:page_size])
-             .order(created_at: params[:order] || :desc)
+        Note.where(filtering_params)
+            .order(created_at: params[:order] || :desc)
+            .page(params[:page])
+            .per(params[:page_size])
       end
 
       def filtering_params
@@ -20,7 +21,7 @@ module Api
       end
 
       def show_note
-        notes.find(params.require(:id))
+        Note.find(params.require(:id))
       end
     end
   end
