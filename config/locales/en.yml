@@ -32,3 +32,4 @@
 en:
   hello: "Hello world"
   content_length_error: "length must be short for Review type"
+  notes_create_success: "Note created successfully"

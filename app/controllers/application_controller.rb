@@ -37,8 +37,8 @@ class ApplicationController < ActionController::Base
     }, status: :bad_request
   end
 
-  def render_resource(resource)
-    resource.errors.empty? ? resource_created(resource) : validation_error(resource)
+  def render_resource(resource, response_resource = resource)
+    resource.errors.empty? ? resource_created(response_resource) : validation_error(resource)
   end
 
   def resource_created(resource)

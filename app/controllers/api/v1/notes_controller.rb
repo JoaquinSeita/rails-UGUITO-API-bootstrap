@@ -8,7 +8,8 @@ module Api
                                                 .permit(:title,
                                                         :content,
                                                         :note_type))
-        render_resource(note)
+
+        render_resource(note, { message: I18n.t('notes_create_success') })
       end
 
       def index

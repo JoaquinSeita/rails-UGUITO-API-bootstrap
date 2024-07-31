@@ -135,7 +135,7 @@ describe Api::V1::NotesController, type: :controller do
         before { post :create, params: { note: note_params } }
 
         it 'responds with the created note' do
-          expect(response_body['content']).to eq(note_params[:content])
+          expect(response_body['message']).to eq(I18n.t('notes_create_success'))
         end
 
         it 'responds with 201 status' do

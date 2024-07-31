@@ -32,3 +32,4 @@
 es:
   hello: "Hola Mundo!"
   content_length_error: "debe ser corto para el tipo Reseña"
+  notes_create_success: "Nota creada con exito."
