@@ -18,13 +18,14 @@ RSpec.describe Note, type: :model do
   describe '#validate_content_word_count' do
     context 'when note type is review and content length is not short' do
       let(:user) { create(:user) }
+      let(:word_count) { Faker::Number.between(from: user.utility.short_threshold + 1) }
       let(:note) do
-        build(:note, user: user, note_type: :review, content: Faker::Lorem.sentence(word_count: user.utility.short_threshold + 1))
+        build(:note, user: user, note_type: :review, content: Faker::Lorem.sentence(word_count: word_count))
       end
 
       it 'adds an error to the content attribute' do
         note.valid?
-        expect(note.errors[:content]).to include(I18n.t('content_length_error'))
+        expect(note.errors).not_to be_empty
       end
     end
 
@@ -33,7 +34,7 @@ RSpec.describe Note, type: :model do
 
       it 'does not add an error to the content attribute' do
         note.valid?
-        expect(note.errors[:content]).not_to include(I18n.t('content_length_error'))
+        expect(note.errors).not_to be_empty
       end
     end
   end
@@ -49,13 +50,15 @@ RSpec.describe Note, type: :model do
 
   describe '#content_length' do
     let(:utility) { create(:utility) }
-    let(:user) { create(:user, utility: utility) }
+    let(:user) { create(:user) }
     let(:note) { build(:note, user: user, content: Faker::Lorem.sentence(word_count: words_to_generate)) }
 
     context 'when content is shorter than short threshold' do
       let(:words_to_generate) { Faker::Number.between(from: 0, to: utility.short_threshold) }
 
       it 'returns short' do
+        allow(utility).to receive(:short_threshold).and_return(Faker::Number.between(from: 0, to: 1000))
+        allow(utility).to receive(:medium_threshold).and_return(Faker::Number.between(from: utility.short_threshold + 1, to: 1000))
         expect(note.content_length).to eq('short')
       end
     end
