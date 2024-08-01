@@ -14,18 +14,6 @@ module Api
 
       private
 
-      def order
-        raise(ArgumentError, I18n.t('invalid_order_error')) unless %w[asc
-                                                                      desc].include?(params.require(:order))
-        params.require(:order)
-      end
-
-      def note_type
-        raise(ArgumentError, I18n.t('invalid_note_type_error')) unless %w[review
-                                                                          critique].include?(params.require(:note_type))
-        params.require(:note_type)
-      end
-
       def notes_filtered
         Note.with_note_type(note_type).order(created_at: order)
             .with_pagination(params.require(:page), params.require(:page_size))
@@ -33,6 +21,20 @@ module Api
 
       def note
         Note.find(params.require(:id))
+      end
+
+      def order
+        unless %w[asc desc].include?(params.require(:order))
+          raise(ArgumentError, I18n.t('invalid_order_error'))
+        end
+        params.require(:order)
+      end
+
+      def note_type
+        unless %w[review critique].include?(params.require(:note_type))
+          raise(ArgumentError, I18n.t('invalid_note_type_error'))
+        end
+        params.require(:note_type)
       end
 
       def handle_missing_parameter(exception)
