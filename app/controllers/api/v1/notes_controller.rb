@@ -14,7 +14,7 @@ module Api
       private
 
       def note
-        Note.find(params.require(:id))
+        notes.find(params.require(:id))
       end
 
       def render_index_response
