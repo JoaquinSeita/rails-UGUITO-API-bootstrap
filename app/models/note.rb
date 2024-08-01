@@ -15,7 +15,7 @@ class Note < ApplicationRecord
   has_one :utility, through: :user
   enum note_type: { review: 0, critique: 1 }
   validates :user_id, :title, :content, :note_type, presence: true
-  validate :validate_content_word_count
+  validate :validate_content_word_count, if: -> { utility.present? && content.present? }
 
   scope :with_note_type, ->(note_type) { where(note_type: note_type) }
   scope :with_pagination, ->(page, page_size) { page(page).per(page_size) }
@@ -25,21 +25,14 @@ class Note < ApplicationRecord
   end
 
   def content_length
-    return if utility.nil?
-    classify_content.to_s
+    return 'short' if word_count <= utility.short_threshold
+    return 'medium' if word_count <= utility.medium_threshold
+    'long'
   end
 
   private
 
-  def classify_content
-    return :short if word_count <= utility.short_threshold
-    return :medium if word_count <= utility.medium_threshold
-    :long
-  end
-
   def validate_content_word_count
-    return if utility.nil? || content.blank?
-
     return unless note_type == 'review' && content_length != 'short'
 
     errors.add(:content, I18n.t('content_length_error'))

@@ -6,8 +6,4 @@ class SouthUtility < Utility
   def medium_threshold
     120
   end
-
-  def long_threshold
-    nil
-  end
 end
