@@ -1,8 +1,6 @@
 module Api
   module V1
     class NotesController < ApplicationController
-      rescue_from ArgumentError, with: :handle_invalid_parameter
-      rescue_from ActionController::ParameterMissing, with: :handle_missing_parameter
 
       def index
         render json: notes_filtered, status: :ok, each_serializer: BriefNoteSerializer
@@ -25,24 +23,20 @@ module Api
 
       def order
         unless %w[asc desc].include?(params.require(:order))
-          raise(ArgumentError, I18n.t('invalid_order_error'))
+          render_invalid_parameter(I18n.t('invalid_order_error'))
         end
         params.require(:order)
       end
 
       def note_type
         unless %w[review critique].include?(params.require(:note_type))
-          raise(ArgumentError, I18n.t('invalid_note_type_error'))
+          render_invalid_parameter(I18n.t('invalid_note_type_error'))
         end
         params.require(:note_type)
       end
 
-      def handle_missing_parameter(exception)
-        render json: { error: exception.message }, status: :bad_request
-      end
-
-      def handle_invalid_parameter(exception)
-        render json: { error: exception.message }, status: :unprocessable_entity
+      def render_invalid_parameter(message)
+        render json: { error: message }, status: :unprocessable_entity
       end
     end
   end
