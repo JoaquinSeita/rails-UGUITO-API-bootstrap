@@ -47,7 +47,7 @@ RSpec.describe Note, type: :model do
   end
 
   describe '#classify_content' do
-    let(:utility) { create(:utility) }
+    let(:utility) { create(%i[south_utility north_utility].sample) }
     let(:user) { create(:user, utility: utility) }
 
     context 'when content is shorter than short threshold' do
