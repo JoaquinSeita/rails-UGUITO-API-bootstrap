@@ -17,6 +17,9 @@ class Note < ApplicationRecord
   validates :user_id, :title, :content, :note_type, presence: true
   validate :validate_content_word_count
 
+  scope :with_note_type, ->(note_type) { where(note_type: note_type) }
+  scope :with_pagination, ->(page, page_size) { page(page).per(page_size) }
+
   def word_count
     content.split.size
   end
