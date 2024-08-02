@@ -23,11 +23,8 @@ module ExceptionHandler
     render_error(error.message)
   end
 
-  def render_incorrect_parameter(error)
-    message = I18n.t('errors.messages.incorrect_parameter')
-    render_error(
-      :param_is_missing, message: message, meta: error.message, status: :bad_request
-    )
+  def render_incorrect_parameter
+    render json: { error: I18n.t('errors.messages.incorrect_parameter') }, status: :bad_request
   end
 
   def render_nothing_not_found
@@ -46,7 +43,7 @@ module ExceptionHandler
     render_error(:utility_unavailable, status: :internal_server_error)
   end
 
-  def render_error(error, message: nil, meta: nil, status: :unprocessable_entity)
+  def render_error(error, message: nil, meta: nil, status: :bad_request)
     render json: { error: error, message: message, meta: meta }, status: status
   end
 end
