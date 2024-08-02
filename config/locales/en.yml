@@ -37,4 +37,6 @@ en:
   invalid_order_error: "Invalid order"
   errors:
     messages:
+      invalid_note_type: "Invalid Note type"
+      invalid_order: "Invalid order"
       incorrect_parameter: "Missing or unpermitted parameter"

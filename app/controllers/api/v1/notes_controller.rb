@@ -37,27 +37,18 @@ module Api
       end
 
       def render_index_response
-        if invalid_parameter?
-          render_error_message
-        else
-          render_ok
-        end
-      end
-
-      def render_error_message
         if invalid_order?
-          render_invalid_parameter_error(I18n.t('invalid_order_error'))
-        elsif invalid_note_type?
-          render_invalid_parameter_error(I18n.t('invalid_note_type_error'))
+          return render_invalid_parameter_error(I18n.t('errors.messages.invalid_order'))
         end
+        if invalid_note_type?
+          return render_invalid_parameter_error(I18n.t('errors.messages.invalid_note_type'))
+        end
+
+        render_ok
       end
 
       def render_ok
         render json: notes_filtered, status: :ok, each_serializer: BriefNoteSerializer
-      end
-
-      def invalid_parameter?
-        invalid_order? || invalid_note_type?
       end
 
       def invalid_order?

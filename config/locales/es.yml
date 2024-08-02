@@ -32,9 +32,14 @@
 es:
   hello: "Hola Mundo!"
   content_length_error: "debe ser corto para el tipo Reseña"
+<<<<<<< HEAD
   notes_create_success: "Nota creada con exito."
   invalid_note_type_error: "Tipo de nota inválido"
   invalid_order_error: "Orden inválido"
+=======
+>>>>>>> TR-463-feat-note-controller-tests
   errors:
     messages:
       incorrect_parameter: "Parámetro faltante o no permitido"
+      invalid_note_type: "Tipo de nota inválido"
+      invalid_order: "Orden inválido"
