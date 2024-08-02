@@ -4,12 +4,7 @@ module Api
       before_action :authenticate_user!
 
       def create
-        note = current_user.notes.create(params.require(:note)
-                                                .permit(:title,
-                                                        :content,
-                                                        :note_type))
-
-        render_resource(note, { message: I18n.t('notes_create_success') })
+        render_create_message(new_note)
       end
 
       def index
@@ -21,6 +16,21 @@ module Api
       end
 
       private
+
+      def new_note
+        current_user.notes.create(params.require(:note)
+                                                .permit(:title,
+                                                        :content,
+                                                        :note_type))
+      end
+
+      def render_create_message(resource)
+        resource.errors.empty? ? render_created : validation_error(resource)
+      end
+
+      def render_created
+        render json: { message: I18n.t('notes_create_success') }, status: :created
+      end
 
       def note
         notes.find(params.require(:id))
