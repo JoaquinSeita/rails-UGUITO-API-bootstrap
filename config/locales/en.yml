@@ -33,3 +33,8 @@ en:
   hello: "Hello world"
   content_length_error: "length must be short for Review type"
   notes_create_success: "Note created successfully"
+  invalid_note_type_error: "Invalid note type"
+  invalid_order_error: "Invalid order"
+  errors:
+    messages:
+      incorrect_parameter: "Missing or unpermitted parameter"
