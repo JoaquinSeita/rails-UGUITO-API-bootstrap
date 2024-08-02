@@ -40,13 +40,7 @@ describe Api::V1::NotesController, type: :controller do
 
         let(:notes_expected) { Note.where(note_type: required_params[:note_type]).order(created_at: required_params[:order]).with_pagination(required_params[:page], required_params[:page_size]) }
 
-        it 'responds with the expected notes' do
-          expect(response_body.to_json).to eq(expected)
-        end
-
-        it 'responds with 200 status' do
-          expect(response).to have_http_status(:ok)
-        end
+        it_behaves_like 'returns expected result'
       end
 
       context 'when fetching notes with a missing required param' do
