@@ -9,7 +9,7 @@ shared_examples 'returns expected result' do
   end
 end
 
-shared_examples 'returns 404' do
+shared_examples 'not found resource' do
   it 'responds with 404 status' do
     expect(response).to have_http_status(:not_found)
   end
@@ -17,15 +17,15 @@ end
 
 describe Api::V1::NotesController, type: :controller do
   let(:other_user) { create(:user) }
-  let(:other_user_note_count) { Faker::Number.between(from: 1, to: 100) }
-  let(:other_user_notes) { create_list(:note, other_user_note_count, user: other_user) }
-  let(:user_note_count) { Faker::Number.between(from: 1, to: 100) }
-  let(:user_notes) { create_list(:note, user_note_count, user: user) }
 
   describe 'GET #index' do
-    let(:page)       { 1 }
-    let(:page_size)  { Faker::Number.between(from: 1, to: 100) }
-    let(:required_params)    { { note_type: %i[review critique].sample, page: page, page_size: page_size, order: %i[desc asc].sample } }
+    let(:other_user_note_count) { Faker::Number.between(from: 1, to: 10) }
+    let(:other_user_notes) { create_list(:note, other_user_note_count, user: other_user) }
+    let(:user_note_count) { Faker::Number.between(from: 1, to: 10) }
+    let(:user_notes) { create_list(:note, user_note_count, user: user) }
+    let(:page_size)  { Faker::Number.between(from: 1, to: user_note_count) }
+    let(:page)       { Faker::Number.between(from: 1, to: (user_note_count / page_size)) }
+    let(:required_params)    { { note_type: Note.note_types.keys.sample, page: page, page_size: page_size, order: %i[desc asc].sample } }
 
     context 'when there is a user logged in' do
       include_context 'with authenticated user'
@@ -48,9 +48,11 @@ describe Api::V1::NotesController, type: :controller do
 
         before { get :index, params: required_params.except(missing_param) }
 
-        it 'returns status code bad request' do
-          expect(response).to have_http_status(:bad_request)
-        end
+        it_behaves_like 'bad request when a parameter is missing'
+
+        # it 'returns status code bad request' do
+        #   expect(response).to have_http_status(:bad_request)
+        # end
       end
 
       context 'when fetching notes with an invalid note type' do
@@ -78,7 +80,7 @@ describe Api::V1::NotesController, type: :controller do
       include_context 'with authenticated user'
 
       context 'when fetching a note' do
-        let(:note) { user_notes.sample }
+        let(:note) { create(:note, user: user) }
         let(:expected) { NoteSerializer.new(note).to_json }
 
         before { get :show, params: { id: note.id } }
@@ -87,19 +89,19 @@ describe Api::V1::NotesController, type: :controller do
       end
 
       context 'when fetching an invalid note' do
-        let(:note) { create(:note) }
+        let(:non_existent_note_id) { Note.maximum(:id).to_i + 1 }
 
-        before { get :show, params: { id: note.id } }
+        before { get :show, params: { id: non_existent_note_id } }
 
-        it_behaves_like 'returns 404'
+        it_behaves_like 'not found resource'
       end
 
       context 'when fetching another user\'s note' do
-        let(:other_user_note) { other_user_notes.sample }
+        let(:other_user_note) { create(:note, user: other_user) }
 
         before { get :show, params: { id: other_user_note.id } }
 
-        it_behaves_like 'returns 404'
+        it_behaves_like 'not found resource'
       end
     end
 
