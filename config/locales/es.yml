@@ -31,9 +31,10 @@
 
 es:
   hello: "Hola Mundo!"
-  content_length_error: "debe ser corto para el tipo Reseña"
   errors:
     messages:
+      note:
+        invalid_content_length: "debe ser corto para el tipo Reseña"
+        invalid_note_type: "Tipo de nota inválido"
+        invalid_order: "Orden inválido"
       incorrect_parameter: "Parámetro faltante o no permitido"
-      invalid_note_type: "Tipo de nota inválido"
-      invalid_order: "Orden inválido"

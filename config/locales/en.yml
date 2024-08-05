@@ -31,9 +31,10 @@
 
 en:
   hello: "Hello world"
-  content_length_error: "length must be short for Review type"
   errors:
     messages:
-      invalid_note_type: "Invalid Note type"
-      invalid_order: "Invalid order"
+      note:
+        invalid_content_length: "length must be short for Review type"
+        invalid_note_type: "Invalid Note type"
+        invalid_order: "Invalid order"
       incorrect_parameter: "Missing or unpermitted parameter"
