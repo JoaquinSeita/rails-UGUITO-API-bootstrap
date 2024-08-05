@@ -1,7 +1,11 @@
 require 'rails_helper'
-shared_examples 'returns expected result' do
-  it 'responds with the expected notes' do
-    expect(response_body.to_json).to eq(expected)
+
+shared_examples 'a valid response' do
+  it 'responds with the expected attributes' do
+    if expected_attributes.nil?
+      expect(response_body).to be_empty
+    else
+      expect(response_keys).to all(be_in(expected_attributes)) end
   end
 
   it 'responds with 200 status' do
@@ -30,17 +34,22 @@ describe Api::V1::NotesController, type: :controller do
     context 'when there is a user logged in' do
       include_context 'with authenticated user'
 
-      let(:expected) do
-        ActiveModel::Serializer::CollectionSerializer.new(notes_expected,
-                                                          serializer: BriefNoteSerializer).to_json
-      end
-
       context 'when fetching notes with all required params' do
-        before { get :index, params: required_params }
+        before do
+          user_notes
+          other_user_notes
+          get :index, params: required_params
+        end
 
-        let(:notes_expected) { Note.where(note_type: required_params[:note_type]).order(created_at: required_params[:order]).with_pagination(required_params[:page], required_params[:page_size]) }
+        let(:expected) { Note.where(user_id: user.id, note_type: required_params[:note_type]).order(created_at: required_params[:order]).with_pagination(required_params[:page], required_params[:page_size]) }
+        let(:expected_attributes) { expected.empty? ? nil : %w[id title note_type content_length] }
+        let(:response_keys) { response_body.empty? ? nil : response_body.sample.keys }
 
-        it_behaves_like 'returns expected result'
+        it 'responds with the expected resource ammount' do
+          expect(response_body.size).to eq(expected.size)
+        end
+
+        it_behaves_like 'a valid response'
       end
 
       context 'when fetching notes with a missing required param' do
@@ -49,10 +58,6 @@ describe Api::V1::NotesController, type: :controller do
         before { get :index, params: required_params.except(missing_param) }
 
         it_behaves_like 'bad request when a parameter is missing'
-
-        # it 'returns status code bad request' do
-        #   expect(response).to have_http_status(:bad_request)
-        # end
       end
 
       context 'when fetching notes with an invalid note type' do
@@ -63,6 +68,22 @@ describe Api::V1::NotesController, type: :controller do
         it 'returns status code unprocessable entity' do
           expect(response).to have_http_status(:unprocessable_entity)
         end
+      end
+
+      context 'when fetching notes and there are none' do
+        let(:empty_notes) { [] }
+        let(:expected_attributes) { nil }
+
+        before do
+          allow(Note).to receive(:where).and_return(empty_notes)
+          get :index, params: required_params
+        end
+
+        it 'responds with an empty array' do
+          expect(response_body).to be_empty
+        end
+
+        it_behaves_like 'a valid response'
       end
     end
 
@@ -81,11 +102,13 @@ describe Api::V1::NotesController, type: :controller do
 
       context 'when fetching a note' do
         let(:note) { create(:note, user: user) }
-        let(:expected) { NoteSerializer.new(note).to_json }
+        let(:response_keys) { response_body.keys }
+        let(:expected) { note }
+        let(:expected_attributes) { %w[id title note_type word_count created_at content content_length user] }
 
         before { get :show, params: { id: note.id } }
 
-        it_behaves_like 'returns expected result'
+        it_behaves_like 'a valid response'
       end
 
       context 'when fetching an invalid note' do
