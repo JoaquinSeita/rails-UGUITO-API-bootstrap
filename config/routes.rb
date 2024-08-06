@@ -25,8 +25,6 @@ Rails.application.routes.draw do
 
   end
 
-  # get 'api/v1/notes/:id', to: 'api/v1/notes#show'
-
   get '/async_request/jobs/:id', to: 'async_request/jobs#show'
 
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html

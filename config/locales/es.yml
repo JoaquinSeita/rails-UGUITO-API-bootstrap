@@ -35,6 +35,8 @@ es:
   notes_create_success: "Nota creada con exito."
   errors:
     messages:
+      note:
+        invalid_content_length: "debe ser corto para el tipo Reseña"
+        invalid_note_type: "Tipo de nota inválido"
+        invalid_order: "Orden inválido"
       incorrect_parameter: "Parámetro faltante o no permitido"
-      invalid_note_type: "Tipo de nota inválido"
-      invalid_order: "Orden inválido"

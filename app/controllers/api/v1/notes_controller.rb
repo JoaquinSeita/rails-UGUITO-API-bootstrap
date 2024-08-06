@@ -8,7 +8,10 @@ module Api
       end
 
       def index
-        render_index_response
+        return render_invalid_note_type if invalid_note_type?
+        return render_invalid_order if invalid_order?
+
+        render json: notes_filtered, status: :ok, each_serializer: BriefNoteSerializer
       end
 
       def show
@@ -36,27 +39,12 @@ module Api
         notes.find(params.require(:id))
       end
 
-      def render_index_response
-        if invalid_order?
-          return render_invalid_parameter_error(I18n.t('errors.messages.invalid_order'))
-        end
-        if invalid_note_type?
-          return render_invalid_parameter_error(I18n.t('errors.messages.invalid_note_type'))
-        end
-
-        render_ok
-      end
-
-      def render_ok
-        render json: notes_filtered, status: :ok, each_serializer: BriefNoteSerializer
-      end
-
       def invalid_order?
         !%w[asc desc].include?(params.require(:order))
       end
 
       def invalid_note_type?
-        !%w[review critique].include?(params.require(:note_type))
+        Note.note_types.keys.exclude?(params.require(:note_type))
       end
 
       def notes_filtered
@@ -70,6 +58,14 @@ module Api
 
       def notes
         current_user.notes
+      end
+
+      def render_invalid_note_type
+        render_invalid_parameter_error(I18n.t('errors.messages.note.invalid_note_type'))
+      end
+
+      def render_invalid_order
+        render_invalid_parameter_error(I18n.t('errors.messages.note.invalid_order'))
       end
     end
   end
