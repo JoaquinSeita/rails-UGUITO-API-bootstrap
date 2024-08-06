@@ -21,7 +21,16 @@ module Api
         render json: note, status: :ok, serializer: NoteSerializer
       end
 
+      def index_async
+        response = execute_async(RetrieveNotesWorker, current_user.id, index_async_params)
+        async_custom_response(response)
+      end
+
       private
+
+      def index_async_params
+        { author: params.require(:author) }
+      end
 
       def new_note
         Note.create(

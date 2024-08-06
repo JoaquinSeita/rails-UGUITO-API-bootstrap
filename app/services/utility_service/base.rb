@@ -41,6 +41,10 @@ module UtilityService
       )
     end
 
+    def retrieve_notes(params)
+      # TODO: Implement this method
+    end
+
     private
 
     def build_utility_service_methods

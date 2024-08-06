@@ -5,6 +5,10 @@ module UtilityService
         { books: map_books(response_body['Libros']) }
       end
 
+      def retrieve_notes(_response_code, response_body)
+        { notes: map_notes(response_body['Notas']) }
+      end
+
       private
 
       def map_books(books)
@@ -17,6 +21,27 @@ module UtilityService
             image_url: book['ImagenUrl'],
             publisher: book['Editorial'],
             year: book['Año']
+          }
+        end
+      end
+
+      def map_notes(notes)
+        notes.map do |note|
+          {
+            title: note['TituloNota'],
+            type: note['ReseniaNota'] ? :review.to_s : :critique.to_s,
+            created_at: note['FechaCreacionNota'],
+            content: note['Contenido'],
+            user: {
+              email: current_user.email,
+              first_name: current_user.first_name,
+              last_name: current_user.last_name
+            },
+            book: {
+              title: note['TituloLibro'],
+              author: note['NombreAutorLibro'],
+              genre: note['GeneroLibro']
+            }
           }
         end
       end
