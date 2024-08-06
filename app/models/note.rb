@@ -35,6 +35,8 @@ class Note < ApplicationRecord
   def validate_content_word_count
     return unless note_type == 'review' && content_length != 'short'
 
-    errors.add(:content, I18n.t('errors.messages.note.invalid_content_length'))
+    errors.add(:content,
+               I18n.t('errors.messages.note.invalid_content_length',
+                      threshold: utility.short_threshold))
   end
 end

@@ -31,12 +31,15 @@
 
 en:
   hello: "Hello world"
-  content_length_error: "length must be short for Review type"
-  notes_create_success: "Note created successfully"
+  success:
+    messages:
+      note:
+        create_success: "Note created successfully"
   errors:
     messages:
       note:
-        invalid_content_length: "length must be short for Review type"
+        invalid_content_length: "Content length must be at most %{threshold} characters long for Review type"
         invalid_note_type: "Invalid Note type"
         invalid_order: "Invalid order"
+        missing_param: "Missing required parameter"
       incorrect_parameter: "Missing or unpermitted parameter"

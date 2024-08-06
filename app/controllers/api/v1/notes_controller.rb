@@ -2,13 +2,16 @@ module Api
   module V1
     class NotesController < ApplicationController
       before_action :authenticate_user!
+      rescue_from ActionController::ParameterMissing, with: :render_missing_parameter_error
 
       def create
-        render_create_message(new_note)
+        return render_invalid_note_type if invalid_note_type?(create_note_parameters[:note_type])
+        return note_create_validation_error(new_note.errors) unless new_note.errors.empty?
+        render json: { message: I18n.t('success.messages.note.create_success') }, status: :created
       end
 
       def index
-        return render_invalid_note_type if invalid_note_type?
+        return render_invalid_note_type if invalid_note_type?(params.require(:note_type))
         return render_invalid_order if invalid_order?
 
         render json: notes, status: :ok, each_serializer: BriefNoteSerializer
@@ -21,18 +24,22 @@ module Api
       private
 
       def new_note
-        current_user.notes.create(params.require(:note)
-                                                .permit(:title,
-                                                        :content,
-                                                        :note_type))
+        Note.create(
+          params.require(:note)
+                .permit(:title,
+                        :content,
+                        :note_type)
+                .merge(user_id: current_user.id)
+        )
       end
 
-      def render_create_message(resource)
-        resource.errors.empty? ? render_created : validation_error(resource)
+      def create_note_parameters
+        require_nested(required_create_note_params, params)
+        params.require(:note).permit(:title, :content, :note_type)
       end
 
-      def render_created
-        render json: { message: I18n.t('notes_create_success') }, status: :created
+      def required_create_note_params
+        { note: { note_type: true, title: true, content: true } }
       end
 
       def note
@@ -43,8 +50,8 @@ module Api
         !%w[asc desc].include?(params.require(:order))
       end
 
-      def invalid_note_type?
-        Note.note_types.keys.exclude?(params.require(:note_type))
+      def invalid_note_type?(note_type)
+        Note.note_types.keys.exclude?(note_type)
       end
 
       def notes
@@ -62,6 +69,15 @@ module Api
 
       def render_invalid_order
         render_invalid_parameter_error(I18n.t('errors.messages.note.invalid_order'))
+      end
+
+      def render_missing_parameter_error
+        render json: { error: I18n.t('errors.messages.note.missing_param') }, status: :bad_request
+      end
+
+      def note_create_validation_error(errors)
+        errors = { error: errors[:content].first } if errors[:content].present?
+        render json: errors, status: :unprocessable_entity
       end
     end
   end

@@ -31,12 +31,15 @@
 
 es:
   hello: "Hola Mundo!"
-  content_length_error: "debe ser corto para el tipo Reseña"
-  notes_create_success: "Nota creada con exito."
+  success:
+    messages:
+      note:
+        create_success: "Nota creada con exito"
   errors:
     messages:
       note:
-        invalid_content_length: "debe ser corto para el tipo Reseña"
+        invalid_content_length: "Una reseña no puede superar los %{threshold} caracteres"
         invalid_note_type: "Tipo de nota inválido"
         invalid_order: "Orden inválido"
+        missing_param: "Faltan parámetros requeridos"
       incorrect_parameter: "Parámetro faltante o no permitido"
