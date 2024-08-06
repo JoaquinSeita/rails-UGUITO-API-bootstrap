@@ -2,10 +2,7 @@ require 'rails_helper'
 
 shared_examples 'a valid response' do
   it 'responds with the expected attributes' do
-    if expected_attributes.nil?
-      expect(response_body).to be_empty
-    else
-      expect(response_keys).to all(be_in(expected_attributes)) end
+    expect(response_keys).to all(be_in(expected_attributes))
   end
 
   it 'responds with 200 status' do
@@ -23,27 +20,43 @@ describe Api::V1::NotesController, type: :controller do
   let(:other_user) { create(:user) }
 
   describe 'GET #index' do
-    let(:other_user_note_count) { Faker::Number.between(from: 1, to: 10) }
-    let(:other_user_notes) { create_list(:note, other_user_note_count, user: other_user) }
     let(:user_note_count) { Faker::Number.between(from: 1, to: 10) }
-    let(:user_notes) { create_list(:note, user_note_count, user: user) }
-    let(:page_size)  { Faker::Number.between(from: 1, to: user_note_count) }
-    let(:page)       { Faker::Number.between(from: 1, to: (user_note_count / page_size)) }
-    let(:required_params)    { { note_type: Note.note_types.keys.sample, page: page, page_size: page_size, order: %i[desc asc].sample } }
+    let(:other_user_note_count) { Faker::Number.between(from: 1, to: 10) }
+    let(:page_size) { Faker::Number.between(from: 1, to: user_note_count) }
+    let(:page) { Faker::Number.between(from: 1, to: (user_note_count / page_size)) }
+    let(:note_type_to_search) { Note.note_types.keys.sample }
+    let(:required_params) do
+      {
+        note_type: note_type_to_search,
+        page: page,
+        page_size: page_size,
+        order: %i[desc asc].sample
+      }
+    end
 
     context 'when there is a user logged in' do
       include_context 'with authenticated user'
 
       context 'when fetching notes with all required params' do
-        before do
-          user_notes
-          other_user_notes
-          get :index, params: required_params
+        let(:expected) do
+          Note.where(
+            user_id: user.id,
+            note_type: required_params[:note_type]
+          )
+              .order(created_at: required_params[:order])
+              .with_pagination(required_params[:page], required_params[:page_size])
         end
 
-        let(:expected) { Note.where(user_id: user.id, note_type: required_params[:note_type]).order(created_at: required_params[:order]).with_pagination(required_params[:page], required_params[:page_size]) }
-        let(:expected_attributes) { expected.empty? ? nil : %w[id title note_type content_length] }
-        let(:response_keys) { response_body.empty? ? nil : response_body.sample.keys }
+        let(:expected_attributes) { %w[id title note_type content_length] }
+        let(:response_keys) { response_body.sample.keys }
+
+        before do
+          create(:note, user: user, note_type: note_type_to_search)
+          create_list(:note, other_user_note_count, user: other_user)
+          create_list(:note, user_note_count, user: user)
+
+          get :index, params: required_params
+        end
 
         it 'responds with the expected resource ammount' do
           expect(response_body.size).to eq(expected.size)
@@ -72,7 +85,8 @@ describe Api::V1::NotesController, type: :controller do
 
       context 'when fetching notes and there are none' do
         let(:empty_notes) { [] }
-        let(:expected_attributes) { nil }
+        let(:expected_attributes) { [] }
+        let(:response_keys) { response_body.empty? ? [] : response_body.sample.keys }
 
         before do
           allow(Note).to receive(:where).and_return(empty_notes)
