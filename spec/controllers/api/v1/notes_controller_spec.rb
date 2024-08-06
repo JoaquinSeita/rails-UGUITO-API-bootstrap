@@ -5,7 +5,7 @@ describe Api::V1::NotesController, type: :controller do
     let(:user_note_count) { Faker::Number.between(from: 1, to: 10) }
     let(:page_size) { Faker::Number.between(from: 1, to: user_note_count) }
     let(:page) { Faker::Number.between(from: 1, to: (user_note_count / page_size)) }
-    let(:required_params) do
+    let(:valid_required_params) do
       {
         note_type: Note.note_types.keys.sample,
         page: page,
@@ -23,17 +23,17 @@ describe Api::V1::NotesController, type: :controller do
         let(:expected) do
           Note.where(
             user_id: user.id,
-            note_type: required_params[:note_type]
+            note_type: valid_required_params[:note_type]
           )
-              .order(created_at: required_params[:order])
-              .with_pagination(required_params[:page], required_params[:page_size])
+              .order(created_at: valid_required_params[:order])
+              .with_pagination(valid_required_params[:page], valid_required_params[:page_size])
         end
 
         before do
-          create(:note, note_type: required_params[:note_type])
-          create_list(:note, user_note_count, user: user, note_type: required_params[:note_type])
+          create(:note, note_type: valid_required_params[:note_type])
+          create_list(:note, user_note_count, user: user, note_type: valid_required_params[:note_type])
 
-          get :index, params: required_params
+          get :index, params: valid_required_params
         end
 
         it 'responds with ordered array' do
@@ -46,9 +46,9 @@ describe Api::V1::NotesController, type: :controller do
       end
 
       context 'when fetching notes with a missing required param' do
-        let(:missing_param)  { required_params.keys.sample }
+        let(:missing_param)  { valid_required_params.keys.sample }
 
-        before { get :index, params: required_params.except(missing_param) }
+        before { get :index, params: valid_required_params.except(missing_param) }
 
         it_behaves_like 'bad request'
       end
@@ -56,14 +56,14 @@ describe Api::V1::NotesController, type: :controller do
       context 'when fetching notes with an invalid note type' do
         let(:invalid_note_type) { :invalid_type }
 
-        before { get :index, params: required_params.merge(note_type: invalid_note_type) }
+        before { get :index, params: valid_required_params.merge(note_type: invalid_note_type) }
 
         it_behaves_like 'unprocessable entity response'
       end
 
       context 'when fetching notes and there are none' do
         before do
-          get :index, params: required_params
+          get :index, params: valid_required_params
         end
 
         it_behaves_like 'valid empty array response'
