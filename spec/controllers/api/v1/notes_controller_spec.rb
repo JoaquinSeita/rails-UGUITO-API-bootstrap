@@ -20,13 +20,10 @@ describe Api::V1::NotesController, type: :controller do
       context 'when fetching notes with all required params' do
         let(:random_index) { Faker::Number.between(from: 0, to: response_body.size - 1) }
         let(:expected_keys) { %w[id title note_type content_length] }
+        let(:filtered_notes) { Note.where(user_id: user.id, note_type: valid_required_params[:note_type]) }
         let(:expected) do
-          Note.where(
-            user_id: user.id,
-            note_type: valid_required_params[:note_type]
-          )
-              .order(created_at: valid_required_params[:order])
-              .with_pagination(valid_required_params[:page], valid_required_params[:page_size])
+          filtered_notes.order(created_at: valid_required_params[:order])
+                        .with_pagination(valid_required_params[:page], valid_required_params[:page_size])
         end
 
         before do
@@ -50,7 +47,7 @@ describe Api::V1::NotesController, type: :controller do
 
         before { get :index, params: valid_required_params.except(missing_param) }
 
-        it_behaves_like 'bad request'
+        it_behaves_like 'missing parameter bad request'
       end
 
       context 'when fetching notes with an invalid note type' do

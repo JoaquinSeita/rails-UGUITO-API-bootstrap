@@ -1,6 +1,6 @@
-RSpec.shared_examples 'valid object response' do
+shared_examples 'valid object response' do
   it 'responds with the expected attributes' do
-    expect(response_body.keys).to all(be_in(expected_keys))
+    expect(expected_keys).to contain_exactly(*response_body.keys)
   end
 
   it_behaves_like 'ok status response'
