@@ -1,29 +1,29 @@
 panel 'Book' do
-    attributes_table_for book do
-        book = locals[:book]
-        row :user do
-            book.user
-        end
-        row :genre do
-            book.genre
-        end
-        row :author do
-            book.author
-        end
-        row :image do
-            book.image
-        end
-        row :title do
-            book.title
-        end
-        row :publisher do
-            book.publisher
-        end
-        row :year do
-            book.year
-        end
-        row :utility do
-            book.utility
-        end
+  attributes_table_for book do
+    book = locals[:book]
+    row :user do
+      book.user
     end
+    row :genre do
+      book.genre
+    end
+    row :author do
+      book.author
+    end
+    row :image do
+      book.image
+    end
+    row :title do
+      book.title
+    end
+    row :publisher do
+      book.publisher
+    end
+    row :year do
+      book.year
+    end
+    row :utility do
+      book.utility
+    end
+  end
 end
