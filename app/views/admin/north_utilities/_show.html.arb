@@ -25,5 +25,11 @@ panel 'Utility' do
     row :notes_data_url do
       utility.notes_data_url
     end
+    row :short_threshold do
+      utility.short_threshold
+    end
+    row :medium_threshold do
+      utility.medium_threshold
+    end
   end
 end
