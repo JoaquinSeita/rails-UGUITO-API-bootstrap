@@ -3,17 +3,16 @@ module Api
     class NotesController < ApplicationController
       before_action :authenticate_user!
       rescue_from ActionController::ParameterMissing, with: :render_missing_parameter_error
+      rescue_from ActiveRecord::RecordInvalid, with: :note_create_validation_error
 
       def create
         return render_invalid_note_type if invalid_note_type?(create_note_parameters[:note_type])
-        return note_create_validation_error(new_note.errors) unless new_note.errors.empty?
-        render json: { message: I18n.t('success.messages.note.create_success') }, status: :created
+        create_note_and_render_success
       end
 
       def index
         return render_invalid_note_type if invalid_note_type?(params.require(:note_type))
         return render_invalid_order if invalid_order?
-
         render json: notes, status: :ok, each_serializer: BriefNoteSerializer
       end
 
@@ -28,18 +27,18 @@ module Api
 
       private
 
+      def create_note_and_render_success
+        create_note
+        render json: { message: I18n.t('success.messages.note.create_success') }, status: :created
+      end
+
       def index_async_params
         { author: params.require(:author) }
       end
 
-      def new_note
-        Note.create(
-          params.require(:note)
-                .permit(:title,
-                        :content,
-                        :note_type)
-                .merge(user_id: current_user.id)
-        )
+      def create_note
+        Note.create!(params.require(:note).permit(:title, :content, :note_type)
+                           .merge(user_id: current_user.id))
       end
 
       def create_note_parameters
@@ -84,9 +83,10 @@ module Api
         render json: { error: I18n.t('errors.messages.note.missing_param') }, status: :bad_request
       end
 
-      def note_create_validation_error(errors)
-        errors = { error: errors[:content].first } if errors[:content].present?
-        render json: errors, status: :unprocessable_entity
+      def note_create_validation_error
+        threshold = current_user.utility.short_threshold
+        error_message = I18n.t('errors.messages.note.invalid_content_length', threshold: threshold)
+        render json: { error: error_message }, status: :unprocessable_entity
       end
     end
   end
