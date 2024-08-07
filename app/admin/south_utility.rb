@@ -48,8 +48,8 @@ ActiveAdmin.register SouthUtility do
       f.input :external_api_authentication_url, as: :url
       f.input :books_data_url, as: :url
       f.input :notes_data_url, as: :url
-      f.input :short_threshold
-      f.input :medium_threshold
+      f.input :short_threshold, as: :number
+      f.input :medium_threshold, as: :number
       f.actions
     end
   end

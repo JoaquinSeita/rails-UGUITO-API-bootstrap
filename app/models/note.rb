@@ -25,8 +25,8 @@ class Note < ApplicationRecord
   end
 
   def content_length
-    return 'short' if word_count <= utility.short_threshold
-    return 'medium' if word_count <= utility.medium_threshold
+    return 'short' if word_count <= utility.short_threshold.to_i
+    return 'medium' if word_count <= utility.medium_threshold.to_i
     'long'
   end
 
