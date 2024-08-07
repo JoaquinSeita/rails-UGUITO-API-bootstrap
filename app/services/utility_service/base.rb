@@ -42,7 +42,11 @@ module UtilityService
     end
 
     def retrieve_notes(params)
-      # TODO: Implement this method
+      process_response(
+        get(@utility.notes_data_url, query: body_for(:retrieve_notes, params)),
+        success_response_method: :retrieve_notes,
+        failed_response_method: :default_response
+      )
     end
 
     private

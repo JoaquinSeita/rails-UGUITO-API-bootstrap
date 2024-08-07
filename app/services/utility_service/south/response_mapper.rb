@@ -33,9 +33,9 @@ module UtilityService
             created_at: note['FechaCreacionNota'],
             content: note['Contenido'],
             user: {
-              email: current_user.email,
-              first_name: current_user.first_name,
-              last_name: current_user.last_name
+              email: note['EmailAutor'],
+              first_name: note['NombreCompletoAutor'].split.first,
+              last_name: note['NombreCompletoAutor'].split.join(' ')[1..]
             },
             book: {
               title: note['TituloLibro'],
